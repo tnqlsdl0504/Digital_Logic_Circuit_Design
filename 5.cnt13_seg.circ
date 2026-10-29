@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="5.0.0" version="1.0">
+  This file is intended to be loaded by Logisim-evolution v5.0.0(https://github.com/logisim-evolution/).
+
+  <lib desc="#Wiring" name="0">
+    <tool name="Pin">
+      <a name="appearance" val="classic"/>
+    </tool>
+  </lib>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2"/>
+  <lib desc="#Arithmetic" name="3"/>
+  <lib desc="#FPArithmetic" name="4"/>
+  <lib desc="#Memory" name="5"/>
+  <lib desc="#I/O" name="6"/>
+  <lib desc="#TTL" name="7"/>
+  <lib desc="#TCL" name="8"/>
+  <lib desc="#Base" name="9"/>
+  <lib desc="#BFH-Praktika" name="10"/>
+  <lib desc="#Input/Output-Extra" name="11"/>
+  <lib desc="#Soc" name="12"/>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+  </options>
+  <mappings>
+    <tool map="Button2" name="Poke Tool"/>
+    <tool map="Button3" name="Menu Tool"/>
+    <tool map="Ctrl Button1" name="Menu Tool"/>
+  </mappings>
+  <toolbar>
+    <tool name="Poke Tool"/>
+    <tool name="Edit Tool"/>
+    <tool name="Wiring Tool"/>
+    <tool name="Text Tool"/>
+    <tool name="Image"/>
+    <sep/>
+    <tool name="Pin"/>
+    <tool name="Pin">
+      <a name="facing" val="west"/>
+      <a name="type" val="output"/>
+    </tool>
+    <sep/>
+    <tool name="NOT Gate"/>
+    <tool name="AND Gate"/>
+    <tool name="OR Gate"/>
+    <tool name="XOR Gate"/>
+    <tool name="NAND Gate"/>
+    <tool name="NOR Gate"/>
+    <sep/>
+    <tool name="D Flip-Flop"/>
+    <tool name="Register"/>
+  </toolbar>
+  <circuit name="main">
+    <a name="appearance" val="logisim_evolution"/>
+    <a name="circuit" val="main"/>
+    <a name="circuitnamedboxfixedsize" val="true"/>
+    <a name="simulationFrequency" val="1.0"/>
+    <comp lib="0" loc="(260,300)" name="Pin">
+      <a name="appearance" val="classic"/>
+    </comp>
+    <comp lib="0" loc="(260,340)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="width" val="13"/>
+    </comp>
+    <comp lib="0" loc="(610,300)" name="Splitter">
+      <a name="fanout" val="8"/>
+      <a name="incoming" val="8"/>
+    </comp>
+    <comp lib="6" loc="(720,270)" name="7-Segment Display"/>
+    <comp loc="(520,300)" name="cnt13_seg"/>
+    <wire from="(260,300)" to="(300,300)"/>
+    <wire from="(260,340)" to="(300,340)"/>
+    <wire from="(300,320)" to="(300,340)"/>
+    <wire from="(520,300)" to="(610,300)"/>
+    <wire from="(630,220)" to="(670,220)"/>
+    <wire from="(630,230)" to="(720,230)"/>
+    <wire from="(630,240)" to="(730,240)"/>
+    <wire from="(630,250)" to="(660,250)"/>
+    <wire from="(630,260)" to="(650,260)"/>
+    <wire from="(630,270)" to="(640,270)"/>
+    <wire from="(630,280)" to="(680,280)"/>
+    <wire from="(630,290)" to="(690,290)"/>
+    <wire from="(640,270)" to="(640,360)"/>
+    <wire from="(640,360)" to="(740,360)"/>
+    <wire from="(650,260)" to="(650,350)"/>
+    <wire from="(650,350)" to="(730,350)"/>
+    <wire from="(660,250)" to="(660,340)"/>
+    <wire from="(660,340)" to="(720,340)"/>
+    <wire from="(670,220)" to="(670,380)"/>
+    <wire from="(670,380)" to="(750,380)"/>
+    <wire from="(680,260)" to="(680,280)"/>
+    <wire from="(680,260)" to="(750,260)"/>
+    <wire from="(690,250)" to="(690,290)"/>
+    <wire from="(690,250)" to="(740,250)"/>
+    <wire from="(720,230)" to="(720,270)"/>
+    <wire from="(720,330)" to="(720,340)"/>
+    <wire from="(730,240)" to="(730,270)"/>
+    <wire from="(730,330)" to="(730,350)"/>
+    <wire from="(740,250)" to="(740,270)"/>
+    <wire from="(740,330)" to="(740,360)"/>
+    <wire from="(750,260)" to="(750,270)"/>
+    <wire from="(750,330)" to="(750,380)"/>
+  </circuit>
+  <vhdl appearance="logisim_evolution" name="cnt13_seg">-- Library and package&#13;
+library ieee;&#13;
+use ieee.std_logic_1164.all;&#13;
+use ieee.std_logic_arith.all;&#13;
+use ieee.std_logic_unsigned.all;&#13;
+&#13;
+-- entity&#13;
+entity cnt13_seg is&#13;
+    port(&#13;
+        en      : in std_logic;&#13;
+        vt      : in std_logic_vector(12 downto 0); -- 13-bit vector&#13;
+        display : out std_logic_vector(7 downto 0)  -- "abcdefgdp"&#13;
+    );&#13;
+end entity cnt13_seg;&#13;
+&#13;
+-- architecture&#13;
+architecture bhv of cnt13_seg is&#13;
+begin&#13;
+    process(en, vt)&#13;
+        variable sum : integer range 0 to 15;&#13;
+    begin&#13;
+        -- 1. Count the number of '1's in vt&#13;
+        sum := 0;&#13;
+        for i in 0 to 12 loop&#13;
+            if (vt(i) = '1') then&#13;
+                sum := sum + 1;&#13;
+            end if;&#13;
+        end loop;&#13;
+&#13;
+        -- 2. Display on 7-segment with enable control&#13;
+        if en = '0' then&#13;
+            display &lt;= "00000000";&#13;
+        else&#13;
+            case sum is&#13;
+                -- Digits 0 to 9&#13;
+                when 0  =&gt; display &lt;= "11111100"; -- 0&#13;
+                when 1  =&gt; display &lt;= "01100000"; -- 1&#13;
+                when 2  =&gt; display &lt;= "11011010"; -- 2&#13;
+                when 3  =&gt; display &lt;= "11110010"; -- 3&#13;
+                when 4  =&gt; display &lt;= "01100110"; -- 4&#13;
+                when 5  =&gt; display &lt;= "10110110"; -- 5&#13;
+                when 7  =&gt; display &lt;= "11100000"; -- 7&#13;
+                when 8  =&gt; display &lt;= "11111110"; -- 8&#13;
+                when 9  =&gt; display &lt;= "11100110"; -- 9&#13;
+                -- Letters A to F (10 to 15)&#13;
+                when 10 =&gt; display &lt;= "11101110"; -- A&#13;
+                when 11 =&gt; display &lt;= "00111110"; -- b&#13;
+                when 12 =&gt; display &lt;= "10011100"; -- C&#13;
+                when 13 =&gt; display &lt;= "01111010"; -- d&#13;
+                when 14 =&gt; display &lt;= "10011110"; -- E&#13;
+                when 15 =&gt; display &lt;= "10001110"; -- F&#13;
+                when others =&gt; display &lt;= "00000000";&#13;
+            end case;&#13;
+        end if;&#13;
+    end process;&#13;
+end architecture bhv;&#13;
+</vhdl>
+  <vhdl appearance="logisim_evolution" name="seg_letters">-- Library and package&#13;
+library ieee;&#13;
+use ieee.std_logic_1164.all;&#13;
+use ieee.std_logic_arith.all;&#13;
+use ieee.std_logic_unsigned.all;&#13;
+&#13;
+-- entity&#13;
+entity seg_letters is&#13;
+    port(&#13;
+        en      : in std_logic;&#13;
+        dat     : in std_logic_vector(2 downto 0);&#13;
+        display : out std_logic_vector(7 downto 0)&#13;
+    );&#13;
+end entity seg_letters;&#13;
+&#13;
+-- architecture&#13;
+architecture bhv of seg_letters is&#13;
+begin&#13;
+    process(en, dat)&#13;
+    begin&#13;
+        if en = '0' then&#13;
+            display &lt;= "00000000";&#13;
+        else&#13;
+            case dat is&#13;
+                when "000" =&gt; display &lt;= "11101110"; -- a (A)&#13;
+                when "001" =&gt; display &lt;= "00111110"; -- b&#13;
+                when "010" =&gt; display &lt;= "10011100"; -- c (C)&#13;
+                when "011" =&gt; display &lt;= "01111010"; -- d&#13;
+                when "100" =&gt; display &lt;= "10001110"; -- f (F)&#13;
+                when "101" =&gt; display &lt;= "11110110"; -- g&#13;
+                when others =&gt; display &lt;= "00000000";&#13;
+            end case;&#13;
+        end if;&#13;
+    end process;&#13;
+end architecture bhv;&#13;
+</vhdl>
+</project>
